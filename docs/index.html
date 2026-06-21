@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>E-Pigeon</title>
+    <style>
+        body {
+            max-width: 600px;
+            margin: 50px auto;
+            font-family: Arial, sans-serif;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            margin-top: 10px;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 10px 20px;
+        }
+
+        .pigeon {
+            font-size: 80px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="pigeon">🕊️</div>
+
+<h1>E-Pigeon</h1>
+
+<p>Send a pigeon to someone.</p>
+
+<label>Recipient</label>
+<input type="text" id="recipient" placeholder="@username" />
+
+<br><br>
+
+<label>Message</label>
+<textarea id="message"></textarea>
+
+<br>
+
+<button onclick="sendPigeon()">
+    Send Pigeon
+</button>
+
+<script>
+function sendPigeon() {
+
+    const recipient =
+        document.getElementById("recipient").value;
+
+    const message =
+        document.getElementById("message").value;
+
+    localStorage.setItem(
+        "latestPigeon",
+        JSON.stringify({
+            recipient,
+            message,
+            createdAt: new Date().toISOString()
+        })
+    );
+
+    alert("🕊️ Pigeon launched!");
+
+    window.location.href = "inbox.html";
+}
+</script>
+
+</body>
+</html>

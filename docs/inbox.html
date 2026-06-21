@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Inbox - E-Pigeon</title>
+
+    <style>
+        body {
+            max-width: 600px;
+            margin: 50px auto;
+            font-family: Arial, sans-serif;
+        }
+
+        .card {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .pigeon {
+            font-size: 60px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="pigeon">🕊️</div>
+
+<h1>Inbox</h1>
+
+<div id="content"></div>
+
+<script>
+
+const pigeon =
+    JSON.parse(localStorage.getItem("latestPigeon"));
+
+const content =
+    document.getElementById("content");
+
+if (!pigeon) {
+
+    content.innerHTML =
+        "<p>No pigeons yet.</p>";
+
+} else {
+
+    content.innerHTML = `
+        <div class="card">
+            <h3>From: Someone</h3>
+            <p>${pigeon.message}</p>
+            <small>
+                ${new Date(
+                    pigeon.createdAt
+                ).toLocaleString()}
+            </small>
+        </div>
+    `;
+}
+
+</script>
+
+</body>
+</html>
