@@ -73,5 +73,21 @@ function sendPigeon() {
 }
 </script>
 
+<h1>Pigeons</h1>
+
+<div id="pigeons"></div>
+
+<script>
+async function loadPigeons() {
+    const response = await fetch(
+        "https://pigeons-server-production.up.railway.app/pigeons"
+    );
+    const pigeons = await response.json();
+    document.getElementById("pigeons").innerText =
+        JSON.stringify(pigeons, null, 2);
+}
+loadPigeons();
+</script>
+
 </body>
 </html>
