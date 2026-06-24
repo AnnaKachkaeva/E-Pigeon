@@ -73,6 +73,17 @@ function sendPigeon() {
 }
 </script>
 
+
+<div id="user"></div>
+<script>
+const tg = window.Telegram.WebApp;
+tg.ready();
+const user = tg.initDataUnsafe.user;
+document.getElementById("user").innerText =
+    JSON.stringify(user, null, 2);
+console.log(user);
+</script>
+
 <h1>Pigeons</h1>
 
 <div id="pigeons"></div>
@@ -80,7 +91,7 @@ function sendPigeon() {
 <script>
 async function loadPigeons() {
     const response = await fetch(
-        "https://pigeons-server-production.up.railway.app/pigeons"
+        "http://127.0.0.1:8000/pigeons"
     );
     const pigeons = await response.json();
     document.getElementById("pigeons").innerText =
