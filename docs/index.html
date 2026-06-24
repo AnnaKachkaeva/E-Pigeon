@@ -91,7 +91,7 @@ console.log(user);
 <script>
 async function loadPigeons() {
     const response = await fetch(
-        "http://127.0.0.1:8000/pigeons"
+        "http://pigeons-server-production.up.railway.app/pigeons"
     );
     const pigeons = await response.json();
     document.getElementById("pigeons").innerText =
