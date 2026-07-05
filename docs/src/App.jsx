@@ -5,12 +5,12 @@ import heroImg from './assets/hero.png'
 import './App.css'
 
 function App() {
-  const tg = window.Telegram.WebApp;
+  // const tg = window.Telegram.WebApp;
 
   return (
     <div>
       <h1>E-Pigeon 🕊️</h1>
-      <p>Hello {tg.initDataUnsafe.user.username}</p>
+      {/* <p>Hello {tg.initDataUnsafe.user.username}</p> */}
     </div>
   );
 }
