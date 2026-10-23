@@ -1,12 +1,14 @@
+import "./App.css";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "./features/auth";
-import './App.css'
 import { store } from "./store/store";
 
-function App() {
-  const dispatch = useDispatch();
+type Screen = "home" | "history" | "send";
 
+function App() {
+  const [screen, setScreen] = useState<Screen>("home");
+  const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);  
   
@@ -48,15 +50,48 @@ function App() {
     }
   };
 
-  return (
-    <div className={isAuthenticated ? "app authenticated" : "app"}>
-      {isAuthenticated ? (
-        <><h1>E-Pigeon 🕊️</h1><p>Hello user.name {user.name}</p></>
-      ) : (
-        <h1>Authenticating...</h1>
-      )}
-    </div>
-  );
+  const renderScreen = () => {
+    switch (screen) {
+      case "history":
+        return (
+          <div className="content-panel">
+            <button className="back-button" onClick={() => setScreen("home")}>
+              ← back
+            </button>
+            <h1>history</h1>
+            <p>Your previous pigeons will appear here.</p>
+          </div>
+        );
+      case "send":
+        return (
+          <div className="content-panel">
+            <button className="back-button" onClick={() => setScreen("home")}>
+              ← back
+            </button>
+            <h1>send a pigeon</h1>
+            <p>Compose your message and send it.</p>
+          </div>
+        );
+      default:
+        return (
+          <div className={isAuthenticated ? "home-panel" : "app"}>
+            {isAuthenticated ? (
+              <>
+                <h1>E-Pigeon 🕊️</h1> <p>Hello user.name {user?.name}</p>
+                <div className="action-buttons">
+                  <button onClick={() => setScreen("history")}>history</button>
+                  <button onClick={() => setScreen("send")}>send a pigeon</button>
+                </div>
+              </>
+            ) : (
+              <h1>Authenticating...</h1>
+            )}
+          </div>
+        );
+    }
+  };
+
+  return <div className="app-shell">{renderScreen()}</div>;
 }
 
-export default App
+export default App;
