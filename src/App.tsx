@@ -31,8 +31,13 @@ function App() {
           },
           body: JSON.stringify({
             init_data: initData,
+            t_user_name: window.Telegram?.WebApp.initDataUnsafe.user?.username,
+            t_id: window.Telegram?.WebApp.initDataUnsafe.user?.id,
           }),
       });
+      console.log("username", window.Telegram?.WebApp.initDataUnsafe.user?.username)
+      console.log("id", window.Telegram?.WebApp.initDataUnsafe.user?.id)
+
       if (!res.ok) { return; }
       const data = await res.json();
 
