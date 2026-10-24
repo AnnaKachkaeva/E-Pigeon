@@ -2,6 +2,14 @@
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
+## Environment variables
+
+Copy `.env.example` to `.env.local` and set the values for your environment. Vite exposes client-side variables prefixed with `VITE_`; do not put secrets in them.
+
+| Variable | Description |
+| --- | --- |
+| `VITE_AUTH_URL` | Backend authentication endpoint |
+
 Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)

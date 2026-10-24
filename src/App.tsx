@@ -17,15 +17,14 @@ function App() {
   }, []);
 
   const authenticate = async () => {
+    console.log("url", import.meta.env.VITE_AUTH_URL)
     try {
       const initData = window.Telegram?.WebApp.initData;
       if (!initData) {
         console.log("No Telegram initData APP SHOULD BE OPENED FROM TELEGRAM ONLY");
         return;
       }
-      const res = await fetch(
-        "https://pigeons-server-production.up.railway.app/auth",
-        {
+      const res = await fetch(import.meta.env.VITE_AUTH_URL, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -33,8 +32,7 @@ function App() {
           body: JSON.stringify({
             init_data: initData,
           }),
-        }
-      );
+      });
       if (!res.ok) { return; }
       const data = await res.json();
 
@@ -73,9 +71,12 @@ function App() {
           </div>
         );
       default:
+        console.log("isAuthenticated = ", isAuthenticated)
+        console.log("vite_env = ", import.meta.env.VITE_ENV == 'test')
+
         return (
           <div className={isAuthenticated ? "home-panel" : "app"}>
-            {isAuthenticated ? (
+            {isAuthenticated || import.meta.env.VITE_ENV == 'test' ? (
               <>
                 <h1>E-Pigeon 🕊️</h1> <p>Hello user.name {user?.name}</p>
                 <div className="action-buttons">
