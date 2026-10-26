@@ -3,6 +3,9 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "./features/auth";
 import { store } from "./store/store";
+import Home from "./pages/home";
+import History from "./pages/history";
+import Send from "./pages/send";
 
 type Screen = "home" | "history" | "send";
 
@@ -10,7 +13,7 @@ function App() {
   const [screen, setScreen] = useState<Screen>("home");
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
-  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);  
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   
   useEffect(() => {
     authenticate();
@@ -53,51 +56,21 @@ function App() {
     }
   };
 
-  const renderScreen = () => {
-    switch (screen) {
-      case "history":
-        return (
-          <div className="content-panel">
-            <button className="back-button" onClick={() => setScreen("home")}>
-              ← back
-            </button>
-            <h1>history</h1>
-            <p>Your previous pigeons will appear here.</p>
-          </div>
-        );
-      case "send":
-        return (
-          <div className="content-panel">
-            <button className="back-button" onClick={() => setScreen("home")}>
-              ← back
-            </button>
-            <h1>send a pigeon</h1>
-            <p>Compose your message and send it.</p>
-          </div>
-        );
-      default:
-        console.log("isAuthenticated = ", isAuthenticated)
-        console.log("vite_env = ", import.meta.env.VITE_ENV == 'test')
-
-        return (
-          <div className={isAuthenticated ? "home-panel" : "app"}>
-            {isAuthenticated || import.meta.env.VITE_ENV == 'test' ? (
-              <>
-                <h1>E-Pigeon 🕊️</h1> <p>Hello user.name {user?.name}</p>
-                <div className="action-buttons">
-                  <button onClick={() => setScreen("history")}>history</button>
-                  <button onClick={() => setScreen("send")}>send a pigeon</button>
-                </div>
-              </>
-            ) : (
-              <h1>Authenticating...</h1>
-            )}
-          </div>
-        );
-    }
-  };
-
-  return <div className="app-shell">{renderScreen()}</div>;
+  switch (screen) {
+    case "history":
+      return <History onBack={() => setScreen("home")} />;
+    case "send":
+      return <Send onBack={() => setScreen("home")} />;
+    default:
+      return (
+        <Home
+          isAuthenticated={isAuthenticated}
+          user={user}
+          onHistory={() => setScreen("history")}
+          onSend={() => setScreen("send")}
+        />
+      );
+  }
 }
 
 export default App;
