@@ -38,8 +38,8 @@ function App() {
             t_id: window.Telegram?.WebApp.initDataUnsafe.user?.id,
           }),
       });
-      console.log("username", window.Telegram?.WebApp.initDataUnsafe.user?.username)
-      console.log("id", window.Telegram?.WebApp.initDataUnsafe.user?.id)
+      // console.log("username", window.Telegram?.WebApp.initDataUnsafe.user?.username)
+      // console.log("id", window.Telegram?.WebApp.initDataUnsafe.user?.id)
 
       if (!res.ok) { return; }
       const data = await res.json();

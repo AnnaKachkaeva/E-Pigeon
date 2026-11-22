@@ -105,9 +105,12 @@ button:hover {
 
 .pigeon-picker {
   display: grid;
+  overflow-x: auto;
+  justify-content: safe center;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
-  margin-bottom: 24px;
+  margin-bottom: 12px;
+  padding: 4px;
 }
 
 .pigeon-option {
@@ -115,7 +118,7 @@ button:hover {
   min-width: 0;
   aspect-ratio: 1;
   place-items: center;
-  padding: 12px;
+  padding: 2px;
   border: 1px solid rgba(255, 255, 255, 0.28);
   background: rgba(255, 255, 255, 0.1);
 }
@@ -128,12 +131,84 @@ button:hover {
 .pigeon-option img {
   display: block;
   width: 100%;
-  max-width: 64px;
+  max-width: 100px;
 }
 
 .message-form {
   display: grid;
   gap: 16px;
+}
+
+.recipient-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.recipient-field {
+  flex: 1;
+  min-width: 0;
+}
+
+.recipient-field input:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.random-recipient-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #f5f7ff;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.random-recipient-toggle input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+.toggle-control {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.2);
+  transition: background 0.2s ease;
+}
+
+.toggle-control::before {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #f5f7ff;
+  content: "";
+  transition: transform 0.2s ease;
+}
+
+.random-recipient-toggle input:checked + .toggle-control {
+  border-color: #00d8ff;
+  background: #00d8ff;
+}
+
+.random-recipient-toggle input:checked + .toggle-control::before {
+  transform: translateX(18px);
+  background: #111827;
+}
+
+.random-recipient-toggle input:focus-visible + .toggle-control {
+  outline: 2px solid #f5f7ff;
+  outline-offset: 3px;
 }
 
 /*  */
@@ -144,6 +219,10 @@ button:hover {
   color: #f5f7ff;
   font-weight: 600;
   text-align: left;
+}
+
+.message-field-user-name {
+  font-weight: 400;
 }
 
 .message-field-user input,
