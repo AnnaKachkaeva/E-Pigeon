@@ -21,7 +21,7 @@ function Send({ onBack }: SendProps) {
   const [toRandom, setToRandom] = useState(false);
   const [recipient, setRecipient] = useState("");
   const [sendError, setSendError] = useState<string | null>(null);
-  const [isSending, setIsSending] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const messageRef = useRef<HTMLTextAreaElement>(null);
 
   const sendPigeon = async () => {
@@ -44,7 +44,7 @@ function Send({ onBack }: SendProps) {
       return;
     }
 
-    setIsSending(true);
+    setIsLoading(true);
     try {
       const response = await fetch(
         new URL("/messages", import.meta.env.VITE_AUTH_URL),
@@ -54,7 +54,7 @@ function Send({ onBack }: SendProps) {
           body: JSON.stringify({
             sender_id:  window.Telegram?.WebApp.initDataUnsafe.user?.id,
             recipient_name: toRandom ? null : recipient.trim(),
-            pigeon_id: selectedPigeon,
+            pigeon_id: 1, //selectedPigeon, hardcoded for now
             text: messageRef.current?.value.trim() ?? "",
           }),
         },
@@ -71,7 +71,7 @@ function Send({ onBack }: SendProps) {
         error instanceof Error ? error.message : "Could not send the pigeon.",
       );
     } finally {
-      setIsSending(false);
+      setIsLoading(false);
     }
   };
 
@@ -83,7 +83,7 @@ function Send({ onBack }: SendProps) {
 );
 
   return (
-    <div className="app-shell">
+    <div className="app-shell" aria-busy={isLoading}>
       <div className="content-panel send-panel">
         <header className="send-header">
           <button
@@ -154,11 +154,17 @@ function Send({ onBack }: SendProps) {
         className="send-button" 
         type="button" 
         aria-label="Send message"
-        disabled={isSending}
+        disabled={isLoading}
         onClick={() => void sendPigeon()}
       >
         <img src={planeImage} alt="" />
       </button>
+      {isLoading && (
+        <div className="send-loading-overlay" role="status" aria-live="polite">
+          <span className="send-loading-spinner" aria-hidden="true" />
+          <span className="visually-hidden">Sending message</span>
+        </div>
+      )}
     </div>
   );
 }
