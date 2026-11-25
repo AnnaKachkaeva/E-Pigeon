@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import planeImage from "../assets/plane.jpg";
 import type { RootState } from "../store/store";
@@ -7,21 +7,11 @@ type SendProps = {
   onBack: () => void;
 };
 
-// const res = await fetch(import.meta.env.VITE_AUTH_URL, {
-//           method: "POST",
-//           headers: {
-//             "Content-Type": "application/json",
-//           },
-//           body: JSON.stringify({
-//             init_data: initData,
-//             t_user_name: window.Telegram?.WebApp.initDataUnsafe.user?.username,
-//             t_id: window.Telegram?.WebApp.initDataUnsafe.user?.id,
-//           }),
-//       });
-
-function sendPigeon(isAuthenticated: Boolean, selectedPigeon: number) {
+function sendPigeon(isAuthenticated: Boolean, selectedPigeon: number | null, recepient: String, message: String) {
   console.log("Send tapped, isAuthenticated:", isAuthenticated == true)
   console.log("selectedPigeon:", selectedPigeon)
+  console.log("recepient:", recepient)
+  console.log("message:", message)
 }
 
 function Send({ onBack }: SendProps) {
@@ -29,6 +19,61 @@ function Send({ onBack }: SendProps) {
   const userName = useSelector((state: RootState) => state.auth.user?.name);
   const [selectedPigeon, setSelectedPigeon] = useState<number | null>(null);
   const [toRandom, setToRandom] = useState(false);
+  const [recipient, setRecipient] = useState("");
+  const [sendError, setSendError] = useState<string | null>(null);
+  const [isSending, setIsSending] = useState(false);
+  const messageRef = useRef<HTMLTextAreaElement>(null);
+
+  const sendPigeon = async () => {
+    setSendError(null);
+    console.log("start sending")
+
+    const telegramUser = window.Telegram?.WebApp.initDataUnsafe.user;
+    if (!isAuthenticated || !telegramUser) {
+      setSendError("Please authenticate before sending.");
+      return;
+    }
+
+    if (selectedPigeon === null) {
+      setSendError("Choose a pigeon first.");
+      return;
+    }
+
+    if (!toRandom && !recipient.trim()) {
+      setSendError("Enter a recipient or turn on To random.");
+      return;
+    }
+
+    setIsSending(true);
+    try {
+      const response = await fetch(
+        new URL("/messages", import.meta.env.VITE_AUTH_URL),
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sender_id:  window.Telegram?.WebApp.initDataUnsafe.user?.id,
+            recipient_name: toRandom ? null : recipient.trim(),
+            pigeon_id: selectedPigeon,
+            text: messageRef.current?.value.trim() ?? "",
+          }),
+        },
+      );
+      const responseText = await response.text();
+
+      if (!response.ok) {
+        throw new Error(responseText || `Request failed (${response.status})`);
+      }
+
+      console.log("Pigeon sent:", responseText);
+    } catch (error) {
+      setSendError(
+        error instanceof Error ? error.message : "Could not send the pigeon.",
+      );
+    } finally {
+      setIsSending(false);
+    }
+  };
 
   const pigeons = Object.values(
   import.meta.glob<string>(
@@ -80,6 +125,8 @@ function Send({ onBack }: SendProps) {
                 type="text"
                 name="recipient"
                 placeholder="Recipient"
+                value={recipient}
+                onChange={(event) => setRecipient(event.target.value)}
                 disabled={toRandom}
               />
             </label>
@@ -98,16 +145,17 @@ function Send({ onBack }: SendProps) {
 
           <label className="message-field">
             <span>Message</span>
-            <textarea name="message" rows={7} placeholder="Write your message..." />
+            <textarea ref={messageRef} name="message" rows={7} placeholder="Write your message..." />
           </label>
-
+          {sendError && <p role="alert">{sendError}</p>}
         </form>
       </div>
       <button 
         className="send-button" 
         type="button" 
         aria-label="Send message"
-        onClick={() => sendPigeon(isAuthenticated, selectedPigeon)}
+        disabled={isSending}
+        onClick={() => void sendPigeon()}
       >
         <img src={planeImage} alt="" />
       </button>
