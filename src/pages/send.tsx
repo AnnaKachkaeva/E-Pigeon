@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import planeImage from "../assets/plane.jpg";
 import type { RootState } from "../store/store";
+import { RecepientField, RecepientStatus } from "./RecepientField";
 
 type SendProps = {
   onBack: () => void;
@@ -14,38 +15,42 @@ function sendPigeon(isAuthenticated: Boolean, selectedPigeon: number | null, rec
   console.log("message:", message)
 }
 
+type SendStatus = "ready" | "loading" | "sent_ok";
+
 function Send({ onBack }: SendProps) {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const userName = useSelector((state: RootState) => state.auth.user?.name);
   const [selectedPigeon, setSelectedPigeon] = useState<number | null>(null);
-  const [toRandom, setToRandom] = useState(false);
-  const [recipient, setRecipient] = useState("");
+  const [pageStatus, setPageStatus] = useState<SendStatus>("ready");
   const [sendError, setSendError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [recipientStatus, setReccipientStatus] = useState<RecepientStatus>('checked_ok');
+  const [recipientName, setRecipientName] = useState<string>("");
   const messageRef = useRef<HTMLTextAreaElement>(null);
 
   const sendPigeon = async () => {
     setSendError(null);
-    console.log("start sending")
+    console.log("start sending", recipientName, recipientStatus)
 
     const telegramUser = window.Telegram?.WebApp.initDataUnsafe.user;
     if (!isAuthenticated || !telegramUser) {
       setSendError("Please authenticate before sending.");
       return;
     }
-
+    console.log("!!!! isAuthenticated")
     if (selectedPigeon === null) {
       setSendError("Choose a pigeon first.");
       return;
     }
-
-    if (!toRandom && !recipient.trim()) {
-      setSendError("Enter a recipient or turn on To random.");
+    console.log("!!!! selectedPigeon - ok")
+    console.log("reccipientStatus", recipientStatus)
+    if (recipientStatus != 'checked_ok') {
+      setSendError("Enter a correct recipient or turn on To random.");
       return;
     }
-
-    setIsLoading(true);
+    console.log("!!!! reccipientStatus - ok")
+    setPageStatus("loading");
     try {
+      console.log("!!!! start networkong, rec name:", recipientName)
       const response = await fetch(
         new URL("/messages", import.meta.env.VITE_AUTH_URL),
         {
@@ -53,7 +58,7 @@ function Send({ onBack }: SendProps) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             sender_id:  window.Telegram?.WebApp.initDataUnsafe.user?.id,
-            recipient_name: toRandom ? null : recipient.trim(),
+            recipient_name: recipientName,
             pigeon_id: 1, //selectedPigeon, hardcoded for now
             text: messageRef.current?.value.trim() ?? "",
           }),
@@ -66,12 +71,13 @@ function Send({ onBack }: SendProps) {
       }
 
       console.log("Pigeon sent:", responseText);
+      setPageStatus("sent_ok");
+      onBack();
     } catch (error) {
       setSendError(
         error instanceof Error ? error.message : "Could not send the pigeon.",
       );
-    } finally {
-      setIsLoading(false);
+      setPageStatus("ready");
     }
   };
 
@@ -83,7 +89,7 @@ function Send({ onBack }: SendProps) {
 );
 
   return (
-    <div className="app-shell" aria-busy={isLoading}>
+    <div className="app-shell" aria-busy={pageStatus === "loading"}>
       <div className="content-panel send-panel">
         <header className="send-header">
           <button
@@ -118,31 +124,11 @@ function Send({ onBack }: SendProps) {
             <span className="message-field-user-name">{userName ?? "Unknown"}</span>
           </label>
 
-          <div className="recipient-row">
-            <label className="message-field-user recipient-field">
-              <span>To</span>
-              <input
-                type="text"
-                name="recipient"
-                placeholder="Recipient"
-                value={recipient}
-                onChange={(event) => setRecipient(event.target.value)}
-                disabled={toRandom}
-              />
-            </label>
-
-            <label className="random-recipient-toggle">
-              <input
-                type="checkbox"
-                name="toRandom"
-                checked={toRandom}
-                onChange={(event) => setToRandom(event.target.checked)}
-              />
-              <span className="toggle-control" aria-hidden="true" />
-              <span>To random</span>
-            </label>
-          </div>
-
+          <RecepientField
+              onRecipientChange={setRecipientName}
+              onStatusChange={setReccipientStatus}
+          />
+          
           <label className="message-field">
             <span>Message</span>
             <textarea ref={messageRef} name="message" rows={7} placeholder="Write your message..." />
@@ -154,12 +140,12 @@ function Send({ onBack }: SendProps) {
         className="send-button" 
         type="button" 
         aria-label="Send message"
-        disabled={isLoading}
+        disabled={pageStatus === "loading"}
         onClick={() => void sendPigeon()}
       >
         <img src={planeImage} alt="" />
       </button>
-      {isLoading && (
+      {pageStatus === "loading" && (
         <div className="send-loading-overlay" role="status" aria-live="polite">
           <span className="send-loading-spinner" aria-hidden="true" />
           <span className="visually-hidden">Sending message</span>
